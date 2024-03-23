@@ -5,5 +5,3 @@ __pycache__/
 *.aux
 *.log
 *.synctex.gz
-
-save.txt
