@@ -1,0 +1,2 @@
+# For loading Google Maps with GET requests
+requests~=2.31.0
