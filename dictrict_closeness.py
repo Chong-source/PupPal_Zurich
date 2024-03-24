@@ -13,13 +13,20 @@ def load_district_distance(api_key: str, origin: District, destination: District
     Must provide a valid GCP API key for using Maps.
     Should be called asynchronously (awaits endpoint response).
     """
+    print(f'{origin.district_name}, {destination.district_name}')
     endpoint_url = (f'https://maps.googleapis.com/maps/api/distancematrix/json'
-                    f'?destinations={destination.district_name}'
-                    f'&origins={origin.district_name}'
+                    f'?destinations={destination.district_name}%2C+Zurich'
+                    f'&origins={origin.district_name}%2C+Zurich'
                     f'&units=metric'
                     f'&key={api_key}')
+    print(endpoint_url)
     response = requests.get(endpoint_url)
-    distance = float(response.json()['rows'][0]['elements'][0]['distance']['text'][:-3])
+    print(response.json())
+    try:
+        distance = float(response.json()['rows'][0]['elements'][0]['distance']['text'][:-3])
+    except (KeyError, ValueError):
+        distance = -9999999999
+
     return distance
 
 
@@ -57,3 +64,5 @@ if __name__ == '__main__':
     districts: set[District] = data_loader.load_district_data(district_data_path)
     create_distance_csv(api_key, output_csv_path, districts)
     print(f'Created {output_csv_path} with district closeness data.')
+    # data/district_closeness_2017.csv
+    # data/district_quarters_2017.csv
