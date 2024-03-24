@@ -38,3 +38,10 @@ def load_dog_data(dog_data_file: str, districts: set[District]) -> Graph:
             graph.add_vertex(dog_breed)
             graph.add_edge(dog_breed, user)
     return graph
+
+
+def load_district_data(district_data_file: str) -> set[District]:
+    """Loads the set of districts from a given district data file,
+    that contains each district's name and ID number.
+    """
+    # TODO
