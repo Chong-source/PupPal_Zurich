@@ -44,4 +44,11 @@ def load_district_data(district_data_file: str) -> set[District]:
     """Loads the set of districts from a given district data file,
     that contains each district's name and ID number.
     """
-    # TODO
+    with open(district_data_file) as districts_data:
+        reader = csv.reader(districts_data)
+        districts = set()
+        for row in reader:
+            # ['261031', '31', 'Alt-Wiedikon', '261', '169']
+            district = District(int(row[1]), row[2])
+            districts.add(district)
+        return districts

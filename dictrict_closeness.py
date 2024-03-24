@@ -1,6 +1,5 @@
 """A graph representing how close the districts are to each other
 """
-def load_district_information(file: str) -> :
 
 
 if __name__ == '__main__':

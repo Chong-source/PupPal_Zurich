@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from csc111.assignments.project2.districts import District
+from districts import District
 
 
 @dataclass
