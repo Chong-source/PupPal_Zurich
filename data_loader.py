@@ -17,11 +17,9 @@ def load_dog_data(dog_data_file: str, districts: set[District]) -> Graph:
     district_mapping = {district.district_id: district for district in districts}
     users = {}
     with (open(dog_data_file) as dog_data_content):
-        first_line = True
-        for row in csv.reader(dog_data_content):
-            if first_line:  # Skip the first line header
-                first_line = False
-                continue
+        reader = csv.reader(dog_data_content)
+        next(reader, None)  # Skip the first line header
+        for row in reader:
             user_id = int(row[0])
             raw_age_range = row[1]
             gender = row[2].upper()
