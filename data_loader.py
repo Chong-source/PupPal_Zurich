@@ -2,9 +2,9 @@
 """
 import csv
 
-from csc111.assignments.project2.districts import District
-from csc111.assignments.project2.graphs import Graph
-from csc111.assignments.project2.userdata import AgeRange, User
+from districts import District
+from graphs import Graph
+from userdata import AgeRange, User
 
 
 def load_dog_data(dog_data_file: str, districts: set[District]) -> Graph:
