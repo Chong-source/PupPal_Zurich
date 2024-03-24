@@ -16,6 +16,9 @@ class District:
     district_id: int
     district_name: str
 
+    def __hash__(self):
+        return hash(str(self.district_id))
+
 
 def get_distance(district1: District, district2: District) -> float:
     """Uses external data/google maps API/manual data to determine how far apart two districts are.

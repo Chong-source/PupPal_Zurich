@@ -4,6 +4,7 @@ Uses the Google Maps API.
 from districts import District
 import requests
 import os.path
+import data_loader
 
 
 def load_district_distance(api_key: str, origin: District, destination: District) -> float:
@@ -47,3 +48,12 @@ def create_distance_csv(api_key: str, csv_path: str, districts: set[District]) -
                 district_distances += f'{destination.district_id}:{distance}|'
             district_distances = district_distances[:-1]  # Remove last |
             csv_file.write(f'{origin.district_id},{district_distances}\n')
+
+
+if __name__ == '__main__':
+    api_key = input('Input API key: ')
+    district_data_path = input('Path to district data file: ')
+    output_csv_path = input('Path to output CSV file: ')
+    districts: set[District] = data_loader.load_district_data(district_data_path)
+    create_distance_csv(api_key, output_csv_path, districts)
+    print(f'Created {output_csv_path} with district closeness data.')
