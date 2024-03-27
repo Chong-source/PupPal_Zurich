@@ -22,8 +22,11 @@ if __name__ == '__main__':
     dog_breed_score = {}
     for dog_breed in dog_breeds:
         user_owners: set[User] = dog_graph.get_neighbours(dog_breed)
-        average_similarity = sum([user.compare(input_user) for user in user_owners]) / len(user_owners)
+        # +8 and +10 makes it so that greater average is given to dogs with more samples
+        average_similarity = (sum([user.compare(input_user) for user in user_owners]) + 8) / (len(user_owners) + 10)
         dog_breed_score[dog_breed] = average_similarity
+    # for dog_breed in dog_breeds:
+    #     print(f'{dog_breed}, count: {len(dog_graph.get_neighbours(dog_breed))}')
     dog_breed_score_clone = dog_breed_score.copy()
     top_matches = []
     while len(top_matches) < limit:
