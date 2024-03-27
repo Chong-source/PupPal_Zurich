@@ -28,10 +28,14 @@ class District:
     def get_distance(self, other: District) -> float:
         """Gets the cached distance from this district to another on a scale from 0.0 to 1.0.
         Performs no calculations itself, must be added to this object by another method.
+        Returns 1.0 if the other district is this district.
 
         Raises RuntimeError if other does not exist in this district's district_distances.
         """
+        if other == self:
+            return 1.0
         if not self.__district_distances or other not in self.__district_distances:
+            print(f'DEBUG: {self.district_id}, {other.district_id}')
             raise RuntimeError
         return self.__district_distances[other]
 

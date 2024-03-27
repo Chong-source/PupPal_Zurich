@@ -35,10 +35,12 @@ class User:
             - other.user_id != self.user_id
         """
         age_diff = abs(other.age - self.age)
-        score = (-0.0001 * (age_diff ** 2)) + 1  # Plot -0.0001x^2+1 in desmos
-        if other.gender == self.gender:
-            score *= 1.5
-        else:
-            score /= 1.5
-        score *= 1 + self.district.get_distance(other.district)
-        return max(0.0, min(1.0, score))
+        age_score = (-0.0001 * (age_diff ** 2)) + 1  # Plot -0.0001x^2+1 in desmos
+        assert 0.0 <= age_score <= 1.0
+        gender_score = 1.0 if other.gender == self.gender or self.gender == 'o' else 0.5
+        assert 0.0 <= gender_score <= 1.0
+        district_score = self.district.get_distance(other.district)
+        assert 0.0 <= district_score <= 1.0
+        score = 0.4 * age_score + 0.2 * gender_score + 0.4 * district_score
+        assert 0.0 <= score <= 1.0
+        return score
