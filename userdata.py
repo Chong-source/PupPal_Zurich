@@ -40,5 +40,5 @@ class User:
             score *= 1.5
         else:
             score /= 1.5
-        score *= 1 + self.district.get_distance(other.district)
+        score *= 0.5 + self.district.get_distance(other.district)
         return max(0.0, min(1.0, score))

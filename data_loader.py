@@ -1,6 +1,7 @@
 """Loads data from the Zurich dog data files into a graph.
 """
 import csv
+import math
 
 from districts import District
 from graphs import Graph
@@ -53,12 +54,18 @@ def load_district_data(district_data_file: str) -> set[District]:
         return districts
 
 
-def add_district_distances(districts: set[District], district_distance_file: str) -> None:
-    """Takes existing district data and mutates it with the distances to every other district.
+def get_raw_district_distances(
+        districts: set[District],
+        district_distance_file: str
+) -> dict[District, dict[District, float]]:
+    """Takes existing district data and creates a mapping between districts and their distance
+    to every other district by loading data from the CSV file at district_distance_file.
 
-    Loads data from the CSV file at district_distance_file.
+    Raw data in this context means it has not been normalized (and remains in kilometers,
+    not bounded by 0.0 and 1.0)
     """
     district_lookup = {district.district_id: district for district in districts}
+    raw_district_distances = {}
     with open(district_distance_file) as district_distance_content:
         reader = csv.reader(district_distance_content)
         next(reader, None)
@@ -67,6 +74,7 @@ def add_district_distances(districts: set[District], district_distance_file: str
             origin = district_lookup[int(district_id)]
             if not origin:
                 continue
+            district_distances = {}
             district_mapping_raw = row[1].split('|')
             for mapping in district_mapping_raw:
                 mapping_split = mapping.split(':')
@@ -74,4 +82,42 @@ def add_district_distances(districts: set[District], district_distance_file: str
                 destination = district_lookup[destination_id]
                 if not destination:
                     continue
-                origin.set_distance(destination, distance)
+                district_distances[destination] = distance
+            raw_district_distances[origin] = district_distances
+    return raw_district_distances
+
+
+def normalize_district_distances(raw_district_distances: dict[District, dict[District, float]]) -> None:
+    """Normalize district distances so that all of them are between 0.0 and 1.0 (from raw km data).
+    In this case, also flips the values so that 1.0 indicates close districts and 0.0 is far.
+    Mutates the given dictionary.
+    """
+    min_distance = math.inf
+    max_distance = 0
+    for origin in raw_district_distances:
+        for destination in raw_district_distances[origin]:
+            assert origin != destination
+            distance = raw_district_distances[origin][destination]
+            min_distance = min(distance, min_distance)
+            max_distance = max(distance, max_distance)
+    if max_distance == 0:
+        raise ValueError
+    difference = max_distance - min_distance
+    for origin in raw_district_distances:
+        for destination in raw_district_distances[origin]:
+            distance = raw_district_distances[origin][destination]
+            distance -= min_distance
+            distance /= difference
+            distance = 1 - distance
+            raw_district_distances[origin][destination] = distance
+            assert 0.0 <= distance <= 1.0
+
+
+def apply_district_distances(district_distances: dict[District, dict[District, float]]) -> None:
+    """Mutates the distance attributes of each district in the district_distances dictionary
+    so that it has the distance values corresponding to our given dictionary.
+    """
+    for origin in district_distances:
+        for destination in district_distances:
+            assert origin != destination
+            origin.set_distance(destination, district_distances[origin][destination])
