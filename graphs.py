@@ -92,6 +92,11 @@ class Graph:
         else:
             raise ValueError
 
+    def get_all_nodes(self) -> set:
+        """Return a set of all the node values in this graph.
+        """
+        return set(self._vertices.keys())
+
 
 class _WeightedVertex(_Vertex):
     """A vertex in a weighted graph.

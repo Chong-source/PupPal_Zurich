@@ -23,8 +23,15 @@ def load_dog_data(dog_data_file: str, districts: set[District]) -> Graph:
         for row in reader:
             user_id = int(row[0])
             raw_age_range = row[1]
+            if not raw_age_range.strip():
+                continue  # Missing age range
             gender = row[2].upper()
-            district = district_mapping[int(row[4])]
+            if not gender.strip():
+                continue  # Missing gender data
+            district_id = int(row[4])
+            if district_id not in district_mapping:
+                continue  # Invalid district ID
+            district = district_mapping[district_id]
             dog_breed = row[5].capitalize()
             if 'Mischling' in dog_breed:  # Ignore mix-breed dogs because its complicated
                 continue
@@ -80,7 +87,7 @@ def get_raw_district_distances(
                 mapping_split = mapping.split(':')
                 destination_id, distance = int(mapping_split[0]), float(mapping_split[1])
                 destination = district_lookup[destination_id]
-                if not destination:
+                if not destination or destination == origin:
                     continue
                 district_distances[destination] = distance
             raw_district_distances[origin] = district_distances
@@ -118,6 +125,6 @@ def apply_district_distances(district_distances: dict[District, dict[District, f
     so that it has the distance values corresponding to our given dictionary.
     """
     for origin in district_distances:
-        for destination in district_distances:
+        for destination in district_distances[origin]:
             assert origin != destination
             origin.set_distance(destination, district_distances[origin][destination])
