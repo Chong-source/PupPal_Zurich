@@ -4,15 +4,33 @@
 ...
 Did data cleaning to delete the irrelevant columns from CSV file
 """
+from __future__ import annotations
 import csv
 from dataclasses import dataclass
+
 
 
 @dataclass
 class DogBreed:
     """A class of dog breed that stores information about each breed that stores the dog's rating
     of each trait based off of the data collected by the american Kennel Club:
-    https://www.kaggle.com/datasets/sujaykapadnis/dog-breeds"""
+    https://www.kaggle.com/datasets/sujaykapadnis/dog-breeds
+
+    Instance Attributes:
+    - breed_name: The dog breed's name
+    - affectionate_w_family: a score out of 5 to describe the dog's affection towards family
+    - good_w_young_children: a score out of 5 to describe the dog's compatibility with children
+    - good_w_other_dog: a score out of 5 to describe how sociable the dog is with other dogs
+    - shedding_level: a score out of 5 to describe how much the dog sheds
+    - openness_to_strangers: a score out of 5 to describe how open the dog is to strangers
+    - playfulness: a score out of 5 to describe the playfulness of a dog
+    - protective_nature: a score out of 5 to describe how protective the dog is.
+    - adaptability: a score out of 5 to describe how adaptable the dog is to new environments
+    - trainability: a score out of 5 to describe how trainable the dog is
+    - energy: a score out of 5 to describe how energetic the dog is
+    - barking: a score out of 5 to describe how much the dog is likely to bark
+    - stimulation_needs: a score out of 5 to describe how much attention the dog needs
+    """
     breed_name: str
     affectionate_w_family: int  # positive trait
     good_w_young_children: int  # positive trait
@@ -29,7 +47,11 @@ class DogBreed:
 
 
 def dog_breed_data_loader(file: str) -> list[DogBreed]:
-    """Loads the data from the breed_traits.csv file, creates a list of DogBreed objects"""
+    """Loads the data from the breed_traits.csv file, creates a list of DogBreed objects
+
+    Preconditions:
+    - The file given must be in a csv format
+    """
     with open(file) as dog_breed_file:
         dog_breed_file.readline()
         breed_informations = []
@@ -54,8 +76,13 @@ def decision_matrix(dog_breeds: list[DogBreed],
                     wenergy: int,  # Let users decide
                     wbarking: int,  # negative trait
                     wstimulation_needs: int  # Let users decide
-                    ):
-    """Returns the top 5 dogs based on the weighted criterons"""
+                    ) -> list[tuple[str, int]]:
+    """Returns the top 5 dogs based on the weighted criterons as a list of tuple containing
+    the dog's name and the weighted score for the dog.
+
+    Preconditions:
+    - Every weight that the user gives must be a number between 1 and 5.
+    """
     breed_scores = []
     for dog_breed in dog_breeds:
         breed_score = waffectionate_w_family * dog_breed.affectionate_w_family + \
