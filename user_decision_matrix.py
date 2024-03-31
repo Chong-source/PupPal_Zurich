@@ -1,13 +1,10 @@
-"""A decision matrix that takes user's preferences based on
-1. Affectionate with family scale of 1 - 5
-2. Good with young children scale of 1 - 5
-...
-Did data cleaning to delete the irrelevant columns from CSV file
+"""A decision matrix that takes user's preferences based on criterias
+decided by the American Kennel Club.
+Did data cleaning to delete the irrelevant columns/criterias from CSV file.
 """
 from __future__ import annotations
 import csv
 from dataclasses import dataclass
-
 
 
 @dataclass
