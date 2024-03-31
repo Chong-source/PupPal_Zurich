@@ -1,2 +1,6 @@
 # For loading Google Maps with GET requests
 requests~=2.31.0
+# A package that combines google maps and tkinter together
+# Both for the map of Zürich component of this program
+tkintermapview~=1.29
+tkinter
