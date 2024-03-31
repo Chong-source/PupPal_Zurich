@@ -2,10 +2,31 @@
 """
 import csv
 import math
+from dataclasses import dataclass
 
 from districts import District
 from graphs import Graph
 from userdata import User
+
+
+@dataclass
+class UserPreferenceDogBreed:
+    """A class of dog breed that stores information about each breed that stores the dog's rating
+    of each trait based off of the data collected by the american Kennel Club:
+    https://www.kaggle.com/datasets/sujaykapadnis/dog-breeds"""
+    breed_name: str
+    affectionate_w_family: int  # positive trait
+    good_w_young_children: int  # positive trait
+    good_w_other_dog: int  # positive trait
+    shedding_level: int  # do negative weight -> negative trait
+    openness_to_strangers: int  # positive trait
+    playfulness: int  # positive
+    protective_nature: int  # positive
+    adaptability: int  # positive
+    trainability: int  # positive
+    energy: int  # Let users decide
+    barking: int  # negative trait
+    stimulation_needs: int  # Let users decide
 
 
 def load_dog_data(dog_data_file: str, districts: set[District]) -> Graph:
@@ -128,3 +149,17 @@ def apply_district_distances(district_distances: dict[District, dict[District, f
         for destination in district_distances[origin]:
             assert origin != destination
             origin.set_distance(destination, district_distances[origin][destination])
+
+
+def dog_breed_data_loader(file: str) -> list[UserPreferenceDogBreed]:
+    """Loads the data from the breed_traits.csv file, creates a list of DogBreed objects"""
+    with open(file) as dog_breed_file:
+        dog_breed_file.readline()
+        breed_informations = []
+        dog_breed_rows = csv.reader(dog_breed_file)
+        for row in dog_breed_rows:
+            breed_informations.append(
+                UserPreferenceDogBreed(row[0], int(row[1]), int(row[2]), int(row[3]), int(row[4]), int(row[5]),
+                                       int(row[6]), int(row[7]), int(row[8]), int(row[9]), int(row[10]),
+                                       int(row[11]), int(row[12])))
+        return breed_informations

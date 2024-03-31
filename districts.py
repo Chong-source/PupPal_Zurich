@@ -35,7 +35,6 @@ class District:
         if other == self:
             return 1.0
         if not self.__district_distances or other not in self.__district_distances:
-            print(f'DEBUG: {self.district_id}, {other.district_id}')
             raise RuntimeError
         return self.__district_distances[other]
 
