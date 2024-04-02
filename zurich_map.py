@@ -9,7 +9,6 @@ import tkinter
 from tkintermapview import TkinterMapView
 from districts import District
 import requests
-import data_loader
 
 
 def plot_locations(locations: list[tuple[float, float]]) -> None:
@@ -45,6 +44,26 @@ def write_district_locations(api_key: str, districts: set[District], csv_path: s
             latitude = response["results"][0]["geometry"]["location"]['lat']
             longitude = response["results"][0]["geometry"]["location"]['lng']
             csv_writer.writerow([district.district_name, latitude, longitude])
+
+
+def create_display(pins: set[tuple[float, float, str]]) -> None:
+    """Creates a TKinter window that display a map of Zurich with the set of pins displayed in it.
+
+    Each pin is a tuple with the longitude, latitude, and title.
+
+    Immediately displays it to the user.
+    """
+    master = tkinter.Tk()
+    master.geometry("600x600")
+    master.title("Map of Zürich")
+    master.resizable(False, False)
+    map_view = TkinterMapView(window, width=600, height=600, corner_radius=0)
+    map_view.pack(fill='both')
+    map_view.set_position(47.3769, 8.5417)  # Centered on Zurich
+    map_view.set_zoom(12)
+    for pin in pins:
+        map_view.set_marker(pin[0], pin[1], pin[2])
+    window.mainloop()
 
 
 if __name__ == '__main__':

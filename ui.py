@@ -154,7 +154,6 @@ class Questionnaire:
 
             # Bind the Enter key to the next_question method
             # This assumes all relevant widgets can receive focus.
-            # For widgets like OptionMenu, you might need to focus on another widget that supports it.
             self.master.bind('<Return>', lambda event=None: self.next_question())
         else:
             self.display_results()
