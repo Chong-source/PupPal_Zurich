@@ -5,7 +5,7 @@ import math
 from dataclasses import dataclass
 
 from districts import District
-from graphs import Graph
+from graphs import Graph, WeightedGraph
 from userdata import User
 
 
@@ -29,16 +29,20 @@ class UserPreferenceDogBreed:
     stimulation_needs: int  # Let users decide
 
 
-def load_dog_data(dog_data_file: str, districts: set[District]) -> Graph:
-    """Creates a graph containing every user in the given dog data file,
-    and every dog breed with edges between owners and pets.
+def load_dog_data(dog_data_file: str, districts: set[District]) -> tuple[Graph, WeightedGraph]:
+    """Creates two graphs:
+        - a graph containing every user in the given dog data file,
+            and every dog breed with edges between owners and pets.
+        - a weighted graph containing every district in the given dog data file,
+            and every dog breed with weighted edges between districts and # of dogs from breed
 
     Ignores Mischling/mixed-breed dogs.
     """
-    graph = Graph()
+    dog_graph = Graph()
+    district_graph = WeightedGraph()
     district_mapping = {district.district_id: district for district in districts}
     users = {}
-    with (open(dog_data_file) as dog_data_content):
+    with (open(dog_data_file, encoding='utf-8') as dog_data_content):
         reader = csv.reader(dog_data_content)
         next(reader, None)  # Skip the first line header
         for row in reader:
@@ -60,18 +64,25 @@ def load_dog_data(dog_data_file: str, districts: set[District]) -> Graph:
             age = (int(split_age_range[0]) + int(split_age_range[1])) // 2  # Average in age range
             if user_id not in district_mapping:
                 users[user_id] = User(user_id, age, gender, district)
-                graph.add_vertex(users[user_id])
+                dog_graph.add_vertex(users[user_id])
             user = users[user_id]
-            graph.add_vertex(dog_breed)
-            graph.add_edge(dog_breed, user)
-    return graph
+            dog_graph.add_vertex(dog_breed)
+            dog_graph.add_edge(dog_breed, user)
+
+            if not district_graph.contains(user.district):
+                district_graph.add_vertex(user.district)
+            if not district_graph.contains(dog_breed):
+                district_graph.add_vertex(dog_breed)
+            current_weight = district_graph.get_weight(user.district, dog_breed)
+            district_graph.add_edge(user.district, dog_breed, current_weight + 1)
+    return dog_graph, district_graph
 
 
 def load_district_data(district_data_file: str) -> set[District]:
     """Loads the set of districts from a given district data file,
     that contains each district's name and ID number.
     """
-    with open(district_data_file) as districts_data:
+    with open(district_data_file, encoding='utf-8') as districts_data:
         reader = csv.reader(districts_data)
         districts = set()
         next(reader, None)
@@ -163,3 +174,42 @@ def dog_breed_data_loader(file: str) -> list[UserPreferenceDogBreed]:
                                        int(row[6]), int(row[7]), int(row[8]), int(row[9]), int(row[10]),
                                        int(row[11]), int(row[12])))
         return breed_informations
+
+
+def load_district_lat_lng(file: str, districts: set[District]) -> dict[District, tuple[float, float]]:
+    """Loads the district latitudes and longitudes from a mapping file.
+    """
+    district_lookup = {district.district_name: district for district in districts}
+    with open(file, encoding='utf-8') as district_file:
+        district_file.readline()
+        district_rows = csv.reader(district_file)
+        district_dict = {}
+        for row in district_rows:
+            district_name, lat, lng = row[0], float(row[1]), float(row[2])
+            district = district_lookup[district_name]
+            district_dict[district] = (lat, lng)
+        return district_dict
+
+
+def load_translation_mapping(file: str) -> dict[str, str]:
+    """Loads the mapping between german dog names to english dog names from a file.
+    """
+    with open(file, encoding='utf-8') as translation_file:
+        translation_file.readline()
+        translation_rows = csv.reader(translation_file)
+        translation_dict = {}
+        for row in translation_rows:
+            translation_dict[row[0]] = row[1]  # German to english
+        return translation_dict
+
+
+def load_dog_images(file: str) -> dict[str, str]:
+    """Loads the mapping between ENGLISH dog names and images URLs online.
+    """
+    with open(file) as images_file:
+        images_file.readline()
+        images_rows = csv.reader(images_file)
+        images_dict = {}
+        for row in images_rows:
+            images_dict[row[0]] = row[1]
+        return images_dict

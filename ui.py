@@ -5,12 +5,18 @@ to recommend dog breeds for them.
 
 Utilizes TKinter for UI elements, and OOP for questions and such.
 """
+import io
+import math
 import tkinter as tk
+import urllib.request
 from typing import Callable
+
+from PIL import Image, ImageTk
 
 import data_loader
 import user_demographics
 import user_preference
+import zurich_map
 from userdata import User
 from districts import District
 
@@ -39,6 +45,11 @@ class Question:
         By default is always true, but for NumberQuestions might require it to be within a range.
         """
         return True
+
+    def on_display(self) -> None:
+        """Runs on displaying the widgets for this question
+        """
+        pass
 
 
 class DropDownQuestion(Question):
@@ -81,15 +92,20 @@ class NumberQuestion(Question):
     def can_update(self) -> bool:
         return self.entry.get().isdigit() and self.min_val <= int(self.entry.get()) <= self.max_val
 
+    def on_display(self) -> None:
+        try:
+            self.entry.focus()
+        except tk.TclError:
+            pass  # Edge case where we focus something that is closing
 
-class Questionnaire:
+
+class Questionnaire(tk.Tk):
     """Represents a questionnaire in which questions are sequentially asked from the user and
     they must input their answer.
     Questions are propogated using widgets generated from the Question objects.
     After completing all questions, executes the answer_callback that will process the answers.
 
     Instance Attributes:
-        - master: The TK object to propogate
         - questions: List of questions to use
         - current_question_index: Current index of question that we are on
         - widgets: List of TK widgets that we will propogate the window with
@@ -98,7 +114,6 @@ class Questionnaire:
         - next_button: TK button for moving to next question
         - current_question: Current question and callable for current widget to get its value
     """
-    master: tk.Tk
     questions: list[Question]
     current_question_index: int
     widgets: list[tk.Widget]
@@ -107,10 +122,13 @@ class Questionnaire:
     next_button: tk.Button
     current_question: tuple[tk.Widget, Callable[[], str]]
 
-    def __init__(self, master: tk.Tk, questions: list[Question], answer_callback: Callable[[list[str]], None]):
-        self.master = master
-        self.master.title("Questionnaire")
+    def __init__(self, questions: list[Question], answer_callback: Callable[[list[str]], None]):
+        # Initialize TK superclas
+        super().__init__()
+        self.title("Questionnaire")
+        self.geometry("800x600")
 
+        # Initialize questionnaire
         self.questions = questions
         self.current_question_index = 0
         self.widgets = []
@@ -119,10 +137,18 @@ class Questionnaire:
 
         self.setup_ui()
 
+    def start(self):
+        """Starts the main TK window.
+
+        THIS IS A BLOCKING FUNCTION.
+        It must also be called on the same thread where TK was initialized!
+        """
+        self.mainloop()
+
     def setup_ui(self):
         """Propogate the master TK with our initial question
         """
-        self.next_button = tk.Button(self.master, text="Next", command=self.next_question)
+        self.next_button = tk.Button(self, text="Next", command=self.next_question)
         self.next_button.pack(side=tk.BOTTOM)
 
         self.update_question()
@@ -142,19 +168,19 @@ class Questionnaire:
             question = self.questions[self.current_question_index]
 
             # Create and pack the question prompt label
-            prompt_label = tk.Label(self.master, text=question.prompt, font=("Arial", 14))
+            prompt_label = tk.Label(self, text=question.prompt, font=("Arial", 14))
             prompt_label.pack(pady=(10, 5))
             self.widgets.append(prompt_label)
 
             # Create the question widget and get the method to retrieve its value
-            widget, widget_val = question.create_widget(self.master)
+            widget, widget_val = question.create_widget(self)
             self.current_question_widget = (question, widget_val)
             widget.pack(pady=(5, 20))
             self.widgets.append(widget)
 
             # Bind the Enter key to the next_question method
             # This assumes all relevant widgets can receive focus.
-            self.master.bind('<Return>', lambda event=None: self.next_question())
+            self.bind('<Return>', lambda _: self.next_question())
         else:
             self.display_results()
 
@@ -165,6 +191,7 @@ class Questionnaire:
             self.answers.append(self.current_question_widget[1]())
             self.current_question_index += 1
             self.update_question()
+            self.current_question_widget[0].on_display()
 
     def display_results(self):
         """Perform the final callable once finishing the questions.
@@ -197,28 +224,33 @@ def create_preference_questions() -> list[Question]:
     ]
 
 
-def create_demographic_questions(districts: set[District]) -> list[Question]:
+def create_demographic_questions(all_districts: set[District]) -> list[Question]:
     """Creates a set of questions to ask about user demographic.
     """
     return [
         NumberQuestion('What is your age?', 0, 100),
         DropDownQuestion('What is your gender?', ['Male', 'Female', 'Other']),
-        DropDownQuestion('What is your district?', [district.district_name for district in districts])
+        DropDownQuestion('What is your district?', sorted([district.district_name for district in all_districts]))
     ]
 
 
 if __name__ == "__main__":
+    # Load all our data from files
     districts = data_loader.load_district_data('data/district_quarters_2017.csv')
     district_data_dict = data_loader.get_raw_district_distances(districts, 'data/district_closeness_2017.csv')
     data_loader.normalize_district_distances(district_data_dict)
     data_loader.apply_district_distances(district_data_dict)
     district_data = set(district_data_dict.keys())
-    graph = data_loader.load_dog_data('data/zurich_dog_data_2017.csv', district_data)
+    graph, district_graph = data_loader.load_dog_data('data/zurich_dog_data_2017.csv', district_data)
     district_id_lookup = {district.district_id: district for district in district_data}
     district_name_lookup = {district.district_name: district for district in district_data}
+    district_lat_lng = data_loader.load_district_lat_lng('data/district_lat_lng.csv', districts)
 
     breeds = data_loader.dog_breed_data_loader('data/breed_traits.csv')
+    dog_translations = data_loader.load_translation_mapping('data/translated_dog_breed.csv')
+    dog_images = data_loader.load_dog_images('data/dog_images.csv')
 
+    # Create questions
     recommendation_limit = 5
 
     demographic_questions = create_demographic_questions(district_data)
@@ -226,18 +258,101 @@ if __name__ == "__main__":
 
     questions = demographic_questions + preference_questions
 
+
+    def curve_data(target_diff_percent: float, data: list[tuple[str, float]]) -> list[tuple[str, float]]:
+        """Curves the % matches that we have in our data so that they are spread out a little more.
+        Makes for more interesting matches.
+
+        target_diff_percent: a magic number that kind of determines how far apart the upper and lower %s are
+        data: our data to curve
+        Does not mutate data, returns new list
+        """
+        min_val = data[-1][1]
+        max_val = data[0][1]
+        diff = 1 - max_val
+        print(f'max val: {max_val}, min_val: {min_val}, target diff: {target_diff_percent}')
+        power = math.log(1 - target_diff_percent, min_val)
+        print(f'power: {power}')
+        # power = fsolve(lambda x: max_val ** x - min_val ** x - target_diff_percent, np.array(1.0))[0].flat[0]
+        return [(entry[0], ((entry[1] + diff) ** power) - diff) for entry in data]
+
+
+    def add_frame(parent: tk.Misc) -> tk.Frame:
+        """Add and return an empty frame to our TKinter window.
+        """
+        input_frame = tk.Frame(parent, pady=5)
+        input_frame.pack()
+        return input_frame
+
+
+    def add_label_to_frame(parent: tk.Frame, column: int, text: str, font_size: int = 14):
+        """Add a label (plaintext) to a TK frame in the given column with the given label and font size
+        """
+        label = tk.Label(parent, text=text, font=("Arial", font_size))
+        label.pack(padx=(5, 5), pady=(10, 5))
+        label.grid(row=0, column=column)
+
+
+    def add_button_to_frame(parent: tk.Frame, column: int, text: str, command: Callable[[], None], font_size: int = 14):
+        """Add a button to aTK frame in the given column with the given function callable, text label and font size
+        """
+        button = tk.Button(parent, text=text, command=command, font=("Arial", font_size))
+        button.grid(row=0, column=column)
+
+
+    def create_map_popup(dog_breed: str, limit: int):
+        """Creates and displays a TKinterMapView window with the top districts in terms of number of
+        a specific dog breed (in proportion to the total dog population).
+        """
+        top_districts = zurich_map.get_top_districts(dog_breed, districts, district_graph)[:limit]
+        top_district_pins = set()
+        index = 1
+        for district in top_districts:
+            lat, lng = district_lat_lng[district]
+            top_district_pins.add((lat, lng, f'#{index}: {district.district_name}'))
+            index += 1
+        zurich_map.create_map_overlay(f'Top Zurich District Choices for {dog_breed}', top_district_pins)
+
+
+    def get_image_from_url(url: str) -> ImageTk:
+        """WARNING: BLOCKING METHOD
+        Retrieves an image from URL then loads it into an ImageTk
+        """
+        with urllib.request.urlopen(url) as get:
+            raw_data = get.read()
+        image_raw = Image.open(io.BytesIO(raw_data))
+        return ImageTk.PhotoImage(image_raw)
+
+
+    def create_breed_info_popup(english_dog_breed: str):
+        """Creates and displays a Tkinter window with an image of the dog breed and other relevant information.
+        """
+        popup = tk.Toplevel()
+        popup.geometry("600x600")
+        popup.title(f'{english_dog_breed} Information')
+        popup.resizable(False, False)
+        if english_dog_breed in dog_images:
+            image_url = dog_images[english_dog_breed]
+            image: ImageTk = get_image_from_url(image_url)
+            image_label = tk.Label(popup, image=image)
+        else:
+            image_label = tk.Label(popup, text='Error finding image')
+
+
     def process_answers(answers: list[str]):
         """Processes the answers that are inputted by the user.
         """
         demographic_answers = answers[:len(demographic_questions)]
         preference_answers = answers[len(demographic_questions):]
 
+        input_user = User(
+            -1,
+            int(demographic_answers[0]),
+            demographic_answers[1][:1].upper(),
+            district_name_lookup[demographic_answers[2]]
+        )
         demographic_recommendations: list[tuple[str, float]] = user_demographics.get_demographic_recommendations(
-            User(
-                -1,
-                int(demographic_answers[0]),
-                demographic_answers[1][:1].upper(),
-                district_name_lookup[demographic_answers[2]]),
+            input_user,
             recommendation_limit,
             graph,
         )
@@ -247,19 +362,42 @@ if __name__ == "__main__":
         ]
 
         weighted_preferences = user_preference.weight_raw_preference_data(*preference_answers_to_potential_int)
-        preference_recommendations: list[tuple[str, int]] = (
+        preference_recommendations = (
             user_preference.get_preference_recommendations(breeds, recommendation_limit, *weighted_preferences))
+        preference_recommendations = (
+            user_preference.normalize_preference_recommendations(preference_recommendations))
 
+        # Curve scores after normalizing
+        demographic_recommendations = curve_data(0.5, demographic_recommendations)
+        preference_recommendations = curve_data(0.15, preference_recommendations)
+
+        def add_dog_breed_entry(dog_breed: str, percent_match: float):
+            """Adds a dog breed entry to our TKinter window with the top districts and dog info buttons.
+            """
+            score_percent = int(round(percent_match * 10000) / 100)
+            frame = add_frame(app)
+            add_label_to_frame(frame, 0, f'{dog_breed}: {score_percent}% match', font_size=11)
+            add_button_to_frame(frame, 1, 'See top districts',
+                                lambda: create_map_popup(dog_breed, 5),
+                                font_size=11)
+            add_button_to_frame(frame, 2, 'Dog Breed Information',
+                                lambda: create_breed_info_popup(dog_breed),
+                                font_size=11)
+
+        label = tk.Label(app, text='Dog Breed Recommendations Based on your Demographic:', font=("Arial", 14))
+        label.pack(pady=(10, 5))
         print('Demographic Recommendations:')
         for demographic_recommendation in demographic_recommendations:
+            add_dog_breed_entry(dog_translations[demographic_recommendation[0]], demographic_recommendation[1])
             print(f'    - {demographic_recommendation[0]}, score: {demographic_recommendation[1]}')
 
+        label = tk.Label(app, text='Dog Breed Recommendations Based on your Preferences:', font=("Arial", 14))
+        label.pack(pady=(10, 5))
         print('\nPreference Recommendations:')
         for preference_recommendation in preference_recommendations:
+            add_dog_breed_entry(preference_recommendation[0], preference_recommendation[1])
             print(f'    - {preference_recommendation[0]}, score: {preference_recommendation[1]}')
 
 
-    root = tk.Tk()
-    root.geometry("800x600")
-    app = Questionnaire(root, questions, process_answers)
-    root.mainloop()
+    app = Questionnaire(questions, process_answers)
+    app.start()

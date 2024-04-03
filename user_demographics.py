@@ -14,8 +14,8 @@ def get_demographic_recommendations(input_user: User, limit: int, dog_graph: Gra
     dog_breed_score = {}
     for dog_breed in dog_breeds:
         user_owners: set[User] = dog_graph.get_neighbours(dog_breed)
-        # +8 and +10 makes it so that greater average is given to dogs with more samples
-        average_similarity = (sum([target.compare(input_user) for target in user_owners]) + 8) / (len(user_owners) + 10)
+        # +7 and +10 makes it so that greater average is given to dogs with more samples
+        average_similarity = (sum([target.compare(input_user) for target in user_owners]) + 7) / (len(user_owners) + 10)
         dog_breed_score[dog_breed] = average_similarity
     top_matches = []
     while len(top_matches) < limit:
@@ -36,7 +36,7 @@ if __name__ == '__main__':
     data_loader.normalize_district_distances(district_data_dict)
     data_loader.apply_district_distances(district_data_dict)
     district_data = set(district_data_dict.keys())
-    graph = data_loader.load_dog_data('data/zurich_dog_data_2017.csv', district_data)
+    graph, district_graph_unused = data_loader.load_dog_data('data/zurich_dog_data_2017.csv', district_data)
     district_lookup = {district.district_id: district for district in district_data}
 
     age = int(input('User age: '))

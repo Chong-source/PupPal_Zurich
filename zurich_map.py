@@ -5,13 +5,16 @@ Tkinter documentation: https://github.com/TomSchimansky/TkinterMapView?tab=readm
 """
 import csv
 import os
-import tkinter
+import tkinter as tk
 from tkintermapview import TkinterMapView
-from districts import District
 import requests
 
+from userdata import User
+from graphs import WeightedGraph
+from districts import District
 
-def plot_locations(locations: list[tuple[float, float]]) -> None:
+
+def __plot_locations(locations: list[tuple[float, float]]) -> None:
     """Plot each location in locations in the interactive map of Zürich
 
     Representation Invariants:
@@ -46,27 +49,48 @@ def write_district_locations(api_key: str, districts: set[District], csv_path: s
             csv_writer.writerow([district.district_name, latitude, longitude])
 
 
-def create_display(pins: set[tuple[float, float, str]]) -> None:
+def create_map_overlay(title: str, pins: set[tuple[float, float, str]]) -> None:
     """Creates a TKinter window that display a map of Zurich with the set of pins displayed in it.
 
     Each pin is a tuple with the longitude, latitude, and title.
-
-    Immediately displays it to the user.
+    Immediately displays it to the user, runs non-blocking.
     """
-    master = tkinter.Tk()
+    master = tk.Toplevel()
     master.geometry("600x600")
-    master.title("Map of Zürich")
+    master.title(title)
     master.resizable(False, False)
-    map_view = TkinterMapView(window, width=600, height=600, corner_radius=0)
+    map_view = TkinterMapView(master, width=600, height=600, corner_radius=0)
     map_view.pack(fill='both')
     map_view.set_position(47.3769, 8.5417)  # Centered on Zurich
     map_view.set_zoom(12)
     for pin in pins:
         map_view.set_marker(pin[0], pin[1], pin[2])
-    window.mainloop()
 
 
-if __name__ == '__main__':
+def get_top_districts(dog_breed: str, districts: set[District], district_graph: WeightedGraph) -> list[District]:
+    """Gets the top districts for size vs # of dogs of specific breed.
+    Takes the target dog breed, and a weighted district graph that has vertices for all
+    districts and dog breeds, with weighted edges between dog breeds and districts representing
+    the # of that dog type in the district
+    """
+    district_size = {}
+    district_breed_count = {}
+    for district in districts:
+        neighbours: set[User] = district_graph.get_neighbours(district)
+        district_size[district] = len(neighbours)
+        if not district_graph.contains(dog_breed):
+            district_breed_count[district] = 0
+        else:
+            district_breed_count[district] = district_graph.get_weight(district, dog_breed)
+    district_ratios = {}
+    for district in districts:
+        size, breed_count = district_size[district], district_breed_count[district]
+        district_ratios[district] = breed_count / size
+    district_ratios_sorted = sorted(district_ratios, key=lambda target: district_ratios[target], reverse=True)
+    return [district for district in district_ratios_sorted]
+
+
+if __name__ == '__main__no':
     # Writing CSV file: Only needed once to create the csv file
     #   API_key = input("Input API key: ")
     #   district_data_path = input('Path to district data file: ')
@@ -75,7 +99,7 @@ if __name__ == '__main__':
     #   write_district_locations(API_key, districts, new_file_name)
 
     # Create Tkinter window
-    window = tkinter.Tk()
+    window = tk.Tk()
     window.geometry("600x600")
     window.title("Map_of_Zürich")
     window.resizable(False, False)

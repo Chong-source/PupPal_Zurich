@@ -2,6 +2,8 @@
 decided by the American Kennel Club.
 Did data cleaning to delete the irrelevant columns/criterias from CSV file.
 """
+import math
+
 from data_loader import UserPreferenceDogBreed, dog_breed_data_loader
 
 
@@ -74,6 +76,27 @@ def weight_raw_preference_data(affectionate_w_family: int,
         (1 if bark_decide == 'positive' else -1) * bark_important,
         (1 if stimulation_decide == 'positive' else -1) * stimulation_important
     )
+
+
+def normalize_preference_recommendations(scores: list[tuple[str, int]]) -> list[tuple[str, float]]:
+    """Turns raw dog breed recommendations (with scores that are uncapped) into normalized (0.0 to 1.0).
+    scores is a list of dog breeds where the first part of the tuple is the name and the second part is the score.
+    """
+    normal_scores = []
+    min_score = math.inf
+    max_score = -math.inf
+    for score in scores:
+        if score[1] < min_score:
+            min_score = score[1]
+        if score[1] > max_score:
+            max_score = score[1]
+    max_score += (max_score - min_score)
+    min_score = max_score - (max_score - min_score) * 2
+    for score in scores:
+        normalized = score[1] - min_score
+        normalized /= max_score - min_score
+        normal_scores.append((score[0], normalized))
+    return normal_scores
 
 
 if __name__ == '__main__':

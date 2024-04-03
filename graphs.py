@@ -97,6 +97,11 @@ class Graph:
         """
         return set(self._vertices.keys())
 
+    def contains(self, element: Any) -> bool:
+        """Checks if this graph contains a vertex with the given key.
+        """
+        return element in self._vertices
+
 
 class _WeightedVertex(_Vertex):
     """A vertex in a weighted graph.
