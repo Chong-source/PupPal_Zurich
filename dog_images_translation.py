@@ -5,6 +5,7 @@ from googletrans import Translator
 
 import requests
 import json
+import pandas
 
 
 def dog_breed_names_csv_writer(dog_data_file: str, new_file_path: str) -> None:
@@ -55,9 +56,10 @@ def create_dog_image_csv(dog_names_file: str, new_file_path: str, api: str, cse:
     """
     dog_names = []
     with open(dog_names_file) as file:
+        file.readline()  # skips the first line
         reader = csv.reader(file)
         for row in reader:
-            dog_names.append(row[0])
+            dog_names.append(row[1])
 
     with open(new_file_path, 'w') as file:
         writer = csv.writer(file)
@@ -68,7 +70,7 @@ def create_dog_image_csv(dog_names_file: str, new_file_path: str, api: str, cse:
                    f"key={api_key}&"
                    f"cx={cse_id}&"
                    f"searchType=image&"
-                   f"q={breed + 'Hunderasse'}")
+                   f"q={breed}")
             response = requests.get(url)
             data = json.loads(response.text)
 
@@ -83,10 +85,22 @@ def create_dog_image_csv(dog_names_file: str, new_file_path: str, api: str, cse:
                 continue
 
 
+def data_cleaning(file1: str, file2: str) -> None:
+    """A function that deletes the duplicated rows from the second file
+    """
+    dog_breeds = set()
+    with open(file1) as file1:
+        reader = csv.reader(file1)
+        for row in reader:
+            dog_breeds.add(row[0])
+    file_2 = pandas.read_csv(file_2[])
+
+
+
 if __name__ == '__main__':
     api_key = input("API_key: ")
     cse_id = input("CSE_id: ")
     create_dog_image_csv('data/translated_dog_breed.csv',
-                         'data/dog_images2.csv',
+                         'data/dog_images4.csv',
                          api_key,
                          cse_id)
