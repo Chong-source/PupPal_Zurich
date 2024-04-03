@@ -9,9 +9,11 @@ import io
 import math
 import tkinter as tk
 import urllib.request
-from typing import Callable
+from typing import Callable, Optional
+from urllib.error import HTTPError
 
 from PIL import Image, ImageTk
+from PIL.ImageTk import PhotoImage
 
 import data_loader
 import user_demographics
@@ -270,10 +272,7 @@ if __name__ == "__main__":
         min_val = data[-1][1]
         max_val = data[0][1]
         diff = 1 - max_val
-        print(f'max val: {max_val}, min_val: {min_val}, target diff: {target_diff_percent}')
         power = math.log(1 - target_diff_percent, min_val)
-        print(f'power: {power}')
-        # power = fsolve(lambda x: max_val ** x - min_val ** x - target_diff_percent, np.array(1.0))[0].flat[0]
         return [(entry[0], ((entry[1] + diff) ** power) - diff) for entry in data]
 
 
@@ -314,29 +313,85 @@ if __name__ == "__main__":
         zurich_map.create_map_overlay(f'Top Zurich District Choices for {dog_breed}', top_district_pins)
 
 
-    def get_image_from_url(url: str) -> ImageTk:
+    def get_image_from_url(url: str, target_image_y_pixel: int) -> PhotoImage:
         """WARNING: BLOCKING METHOD
         Retrieves an image from URL then loads it into an ImageTk
         """
         with urllib.request.urlopen(url) as get:
             raw_data = get.read()
         image_raw = Image.open(io.BytesIO(raw_data))
-        return ImageTk.PhotoImage(image_raw)
+        y_ratio = target_image_y_pixel / image_raw.size[1]
+        new_x = round(image_raw.size[0] * y_ratio)
+        resized = image_raw.resize((new_x, target_image_y_pixel))
+        return ImageTk.PhotoImage(resized)
 
 
     def create_breed_info_popup(english_dog_breed: str):
         """Creates and displays a Tkinter window with an image of the dog breed and other relevant information.
         """
         popup = tk.Toplevel()
-        popup.geometry("600x600")
+        popup.geometry("700x700")
         popup.title(f'{english_dog_breed} Information')
         popup.resizable(False, False)
+        frame = add_frame(popup)
+        tk.Label(popup, text=f'{english_dog_breed} Information', font=('Arial', 20)).pack(pady=(10, 5))
         if english_dog_breed in dog_images:
-            image_url = dog_images[english_dog_breed]
-            image: ImageTk = get_image_from_url(image_url)
-            image_label = tk.Label(popup, image=image)
+            try:
+                image_url = dog_images[english_dog_breed]
+                image: PhotoImage = get_image_from_url(image_url, 250)
+                tk.Label(frame, image=image).pack(pady=(5, 10))
+            except (HTTPError, tk.TclError):
+                tk.Label(popup, text='Error finding image').pack(pady=(5, 10))
         else:
-            image_label = tk.Label(popup, text='Error finding image')
+            tk.Label(popup, text='Error finding image').pack(pady=(5, 10))
+        breed: Optional[data_loader.UserPreferenceDogBreed] = None
+        for target in breeds:
+            if target.breed_name == english_dog_breed:
+                breed = target
+                break
+        if breed is None:
+            tk.Label(popup,
+                     text='Information about this breed is not available! (Working on it)',
+                     font=('Arial', 14)
+                     ).pack(pady=(5, 10))
+        else:
+            (tk.Label(popup,
+                      text=f'Affectionate with Family: {breed.affectionate_w_family}', font=('Arial', 11))
+             .pack(pady=(1, 1)))
+            (tk.Label(popup,
+                      text=f'Good with Young Children: {breed.good_w_young_children}', font=('Arial', 11))
+             .pack(pady=(1, 1)))
+            (tk.Label(popup,
+                      text=f'Good with Other Dogs: {breed.good_w_other_dog}', font=('Arial', 11))
+             .pack(pady=(1, 1)))
+            (tk.Label(popup,
+                      text=f'Shedding Level: {breed.shedding_level}', font=('Arial', 11))
+             .pack(pady=(1, 1)))
+            (tk.Label(popup,
+                      text=f'Openness to Strangers: {breed.openness_to_strangers}', font=('Arial', 11))
+             .pack(pady=(1, 1)))
+            (tk.Label(popup,
+                      text=f'Playfullness: {breed.playfulness}', font=('Arial', 11))
+             .pack(pady=(1, 1)))
+            (tk.Label(popup,
+                      text=f'Protective Nature: {breed.protective_nature}', font=('Arial', 11))
+             .pack(pady=(1, 1)))
+            (tk.Label(popup,
+                      text=f'Adaptability: {breed.adaptability}', font=('Arial', 11))
+             .pack(pady=(1, 1)))
+            (tk.Label(popup,
+                      text=f'Trainability: {breed.trainability}', font=('Arial', 11))
+             .pack(pady=(1, 1)))
+            (tk.Label(popup,
+                      text=f'Energy: {breed.energy}', font=('Arial', 11))
+             .pack(pady=(1, 1)))
+            (tk.Label(popup,
+                      text=f'Barking: {breed.barking}', font=('Arial', 11))
+             .pack(pady=(1, 1)))
+            (tk.Label(popup,
+                      text=f'Stimulation Needs: {breed.stimulation_needs}', font=('Arial', 11))
+             .pack(pady=(1, 1)))
+        popup.mainloop()
 
 
     def process_answers(answers: list[str]):
@@ -371,32 +426,32 @@ if __name__ == "__main__":
         demographic_recommendations = curve_data(0.5, demographic_recommendations)
         preference_recommendations = curve_data(0.15, preference_recommendations)
 
-        def add_dog_breed_entry(dog_breed: str, percent_match: float):
+        def add_dog_breed_entry(english_dog_breed: str, german_dog_breed: Optional[str], percent_match: float):
             """Adds a dog breed entry to our TKinter window with the top districts and dog info buttons.
             """
             score_percent = int(round(percent_match * 10000) / 100)
             frame = add_frame(app)
-            add_label_to_frame(frame, 0, f'{dog_breed}: {score_percent}% match', font_size=11)
-            add_button_to_frame(frame, 1, 'See top districts',
-                                lambda: create_map_popup(dog_breed, 5),
-                                font_size=11)
+            add_label_to_frame(frame, 0, f'{english_dog_breed}: {score_percent}% match', font_size=11)
+            if german_dog_breed is not None:
+                add_button_to_frame(frame, 1, 'See top districts',
+                                    lambda: create_map_popup(german_dog_breed, 5),
+                                    font_size=11)
             add_button_to_frame(frame, 2, 'Dog Breed Information',
-                                lambda: create_breed_info_popup(dog_breed),
+                                lambda: create_breed_info_popup(english_dog_breed),
                                 font_size=11)
 
-        label = tk.Label(app, text='Dog Breed Recommendations Based on your Demographic:', font=("Arial", 14))
-        label.pack(pady=(10, 5))
-        print('Demographic Recommendations:')
-        for demographic_recommendation in demographic_recommendations:
-            add_dog_breed_entry(dog_translations[demographic_recommendation[0]], demographic_recommendation[1])
-            print(f'    - {demographic_recommendation[0]}, score: {demographic_recommendation[1]}')
+        def add_large_label(message: str):
+            """Adds a large padded text label to the tkinter window with given message
+            """
+            label = tk.Label(app, text=message, font=("Arial", 14))
+            label.pack(pady=(10, 5))
 
-        label = tk.Label(app, text='Dog Breed Recommendations Based on your Preferences:', font=("Arial", 14))
-        label.pack(pady=(10, 5))
-        print('\nPreference Recommendations:')
-        for preference_recommendation in preference_recommendations:
-            add_dog_breed_entry(preference_recommendation[0], preference_recommendation[1])
-            print(f'    - {preference_recommendation[0]}, score: {preference_recommendation[1]}')
+        add_large_label('Dog Breed Recommendations Based on your Demographic:')
+        for rec in demographic_recommendations:
+            add_dog_breed_entry(dog_translations[rec[0]], rec[0], rec[1])
+        add_large_label('Dog Breed Recommendations Based on your Preferences:')
+        for rec in preference_recommendations:
+            add_dog_breed_entry(rec[0], None, rec[1])
 
 
     app = Questionnaire(questions, process_answers)
