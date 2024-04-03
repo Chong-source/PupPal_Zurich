@@ -85,22 +85,33 @@ def create_dog_image_csv(dog_names_file: str, new_file_path: str, api: str, cse:
                 continue
 
 
-def data_cleaning(file1: str, file2: str) -> None:
-    """A function that deletes the duplicated rows from the second file
+def data_cleaning(file1: str, file2: str, unduplicated: str) -> None:
+    """A function that ignores the duplicated rows from the second file compared to file1 and creates a
+    new file without the duplicates.
     """
     dog_breeds = set()
     with open(file1) as file1:
         reader = csv.reader(file1)
         for row in reader:
             dog_breeds.add(row[0])
-    file_2 = pandas.read_csv(file_2[])
+
+    with open(unduplicated, 'w') as unduplicated:
+        writer = csv.writer(unduplicated)
+        with open(file2) as file2:
+            reader = csv.reader(file2)
+            for row in reader:
+                if not (row[0] in dog_breeds):
+                    print(row[0])
+                    writer.writerow(row)
 
 
+# if __name__ == '__main__':
+    # api_key = input("API_key: ")
+    # cse_id = input("CSE_id: ")
+    # create_dog_image_csv('data/translated_dog_breed.csv',
+    #                      'data/dog_images4.csv',
+    #                      api_key,
+    #                      cse_id)
 
-if __name__ == '__main__':
-    api_key = input("API_key: ")
-    cse_id = input("CSE_id: ")
-    create_dog_image_csv('data/translated_dog_breed.csv',
-                         'data/dog_images4.csv',
-                         api_key,
-                         cse_id)
+    # data_cleaning('data/dog_images3.csv', 'data/dog_images4.csv',
+    #               'data/no_duplicates.csv')
