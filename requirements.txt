@@ -3,10 +3,8 @@ requests~=2.31.0
 # A package to translate words from German to English
 googletrans==4.0.0-rc1
 # Used to create user interface
-tkinter
+customtkinter~=5.2.2
 # A package that displays maps within tkinter
 tkintermapview~=1.29
-# Used to format and read json files as google's API's response is in json
-json
 # Used for displaying images
 pillow~=10.2.0
