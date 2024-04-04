@@ -3,9 +3,10 @@ between districts in a CSV file.
 
 Data was manually inspected after generation since sometimes the API fails.
 """
-from districts import District
-import requests
 import os.path
+import requests
+
+from districts import District
 import data_loader
 
 
@@ -60,11 +61,11 @@ def create_distance_csv(api_key: str, csv_path: str, districts: set[District]) -
 
 
 if __name__ == '__main__':
-    api_key = input('Input API key: ')
+    key = input('Input API key: ')
     district_data_path = input('Path to district data file: ')
     output_csv_path = input('Path to output CSV file: ')
-    districts: set[District] = data_loader.load_district_data(district_data_path)
-    create_distance_csv(api_key, output_csv_path, districts)
+    all_districts: set[District] = data_loader.load_district_data(district_data_path)
+    create_distance_csv(key, output_csv_path, all_districts)
     print(f'Created {output_csv_path} with district closeness data.')
     # data/district_closeness_2017.csv
     # data/district_quarters_2017.csv

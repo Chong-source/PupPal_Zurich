@@ -35,7 +35,7 @@ class Question:
     """
     prompt: str
 
-    def __init__(self, prompt: str):
+    def __init__(self, prompt: str) -> None:
         self.prompt = prompt
 
     def create_widget(self, master: tk.Tk) -> tuple[tk.Widget, Callable[[], str]]:
@@ -66,14 +66,14 @@ class DropDownQuestion(Question):
     """
     options: list[str]
 
-    def __init__(self, prompt: str, options: list[str]):
+    def __init__(self, prompt: str, options: list[str]) -> None:
         super().__init__(prompt)
         self.options = options
 
     def create_widget(self, master: tk.Tk) -> tuple[tk.Widget, Callable[[], str]]:
-        self.variable = tk.StringVar(master)
-        self.variable.set(self.options[0])  # default value, first option
-        return tk.OptionMenu(master, self.variable, *self.options), self.variable.get
+        variable = tk.StringVar(master)
+        variable.set(self.options[0])  # default value, first option
+        return tk.OptionMenu(master, variable, *self.options), variable.get
 
 
 class NumberQuestion(Question):
@@ -82,11 +82,13 @@ class NumberQuestion(Question):
     Instance Attributes:
         - min_val: Minimum value for this number input
         - max_val: Maximum value for this number input
+        - entry: TK box to input into
     """
     min_val: int
     max_val: int
+    entry: tk.Entry
 
-    def __init__(self, prompt: str, min_val: int, max_val: int):
+    def __init__(self, prompt: str, min_val: int, max_val: int) -> None:
         super().__init__(prompt)
         self.min_val = min_val
         self.max_val = max_val
@@ -126,9 +128,9 @@ class Questionnaire(tk.Tk):
     answers: list[str]
     answer_callback: Callable[[list[str]], None]
     next_button: tk.Button
-    current_question: tuple[tk.Widget, Callable[[], str]]
+    current_question: tuple[Question, Callable[[], str]]
 
-    def __init__(self, questions: list[Question], answer_callback: Callable[[list[str]], None]):
+    def __init__(self, questions: list[Question], answer_callback: Callable[[list[str]], None]) -> None:
         # Initialize TK superclas
         super().__init__()
         self.title("Questionnaire")
@@ -143,7 +145,7 @@ class Questionnaire(tk.Tk):
 
         self.setup_ui()
 
-    def start(self):
+    def start(self) -> None:
         """Starts the main TK window.
 
         THIS IS A BLOCKING FUNCTION.
@@ -151,7 +153,7 @@ class Questionnaire(tk.Tk):
         """
         self.mainloop()
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:
         """Propogate the master TK with our initial question
         """
         self.next_button = tk.Button(self, text="Next", command=self.next_question)
@@ -159,14 +161,14 @@ class Questionnaire(tk.Tk):
 
         self.update_question()
 
-    def clear_widgets(self):
+    def clear_widgets(self) -> None:
         """Clear all widgets from the TK UI
         """
         for widget in self.widgets:
             widget.destroy()
         self.widgets.clear()
 
-    def update_question(self):
+    def update_question(self) -> None:
         """Update the question widgets in the TK UI to represent the current question we are on.
         """
         self.clear_widgets()
@@ -180,7 +182,7 @@ class Questionnaire(tk.Tk):
 
             # Create the question widget and get the method to retrieve its value
             widget, widget_val = question.create_widget(self)
-            self.current_question_widget = (question, widget_val)
+            self.current_question = (question, widget_val)
             widget.pack(pady=(5, 20))
             self.widgets.append(widget)
 
@@ -190,16 +192,16 @@ class Questionnaire(tk.Tk):
         else:
             self.display_results()
 
-    def next_question(self):
+    def next_question(self) -> None:
         """Move to the next question in the TK UI
         """
-        if self.current_question_widget[0].can_update():
-            self.answers.append(self.current_question_widget[1]())
+        if self.current_question[0].can_update():
+            self.answers.append(self.current_question[1]())
             self.current_question_index += 1
             self.update_question()
-            self.current_question_widget[0].on_display()
+            self.current_question[0].on_display()
 
-    def display_results(self):
+    def display_results(self) -> None:
         """Perform the final callable once finishing the questions.
         """
         self.clear_widgets()
@@ -262,8 +264,7 @@ if __name__ == "__main__":
     demographic_questions = create_demographic_questions(district_data)
     preference_questions = create_preference_questions()
 
-    questions = demographic_questions + preference_questions
-
+    all_questions = demographic_questions + preference_questions
 
     def curve_data(target_diff_percent: float, data: list[tuple[str, float]]) -> list[tuple[str, float]]:
         """Curves the % matches that we have in our data so that they are spread out a little more.
@@ -279,7 +280,6 @@ if __name__ == "__main__":
         power = math.log(1 - target_diff_percent, min_val)
         return [(entry[0], ((entry[1] + diff) ** power) - diff) for entry in data]
 
-
     def add_frame(parent: tk.Misc) -> tk.Frame:
         """Add and return an empty frame to our TKinter window.
         """
@@ -287,23 +287,21 @@ if __name__ == "__main__":
         input_frame.pack()
         return input_frame
 
-
-    def add_label_to_frame(parent: tk.Frame, column: int, text: str, font_size: int = 14):
+    def add_label_to_frame(parent: tk.Frame, column: int, text: str, font_size: int = 14) -> None:
         """Add a label (plaintext) to a TK frame in the given column with the given label and font size
         """
         label = tk.Label(parent, text=text, font=("Arial", font_size))
         label.pack(padx=(5, 5), pady=(10, 5))
         label.grid(row=0, column=column)
 
-
-    def add_button_to_frame(parent: tk.Frame, column: int, text: str, command: Callable[[], None], font_size: int = 14):
+    def add_button_to_frame(parent: tk.Frame, column: int, text: str,
+                            command: Callable[[], None], font_size: int = 14) -> None:
         """Add a button to a TK frame in the given column with the given function callable, text label and font size
         """
         button = tk.Button(parent, text=text, command=command, font=("Arial", font_size))
         button.grid(row=0, column=column)
 
-
-    def create_map_popup(dog_breed: str, limit: int):
+    def create_map_popup(dog_breed: str, limit: int) -> None:
         """Creates and displays a TKinterMapView window with the top districts in terms of number of
         a specific dog breed (in proportion to the total dog population).
         """
@@ -315,7 +313,6 @@ if __name__ == "__main__":
             top_district_pins.add((lat, lng, f'#{index}: {district.district_name}'))
             index += 1
         zurich_map.create_map_overlay(f'Top Zurich District Choices for {dog_breed}', top_district_pins)
-
 
     def get_image_from_url(url: str, target_image_y_pixel: int) -> PhotoImage:
         """WARNING: BLOCKING METHOD
@@ -332,8 +329,7 @@ if __name__ == "__main__":
         resized = image_raw.resize((new_x, target_image_y_pixel))
         return ImageTk.PhotoImage(resized)
 
-
-    def create_breed_info_popup(english_dog_breed: str):
+    def create_breed_info_popup(english_dog_breed: str) -> None:
         """Creates and displays a Tkinter window with an image of the dog breed and other relevant information.
         """
         popup = tk.Toplevel()
@@ -400,8 +396,7 @@ if __name__ == "__main__":
              .pack(pady=(1, 1)))
         popup.mainloop()
 
-
-    def process_answers(answers: list[str]):
+    def process_answers(answers: list[str]) -> None:
         """Processes the answers that are inputted by the user.
         """
         demographic_answers = answers[:len(demographic_questions)]
@@ -419,11 +414,11 @@ if __name__ == "__main__":
             graph,
         )
 
-        preference_answers_to_potential_int: list[str | int] = [
+        casted_preference_answers: list[str | int] = [
             int(answer) if answer.isdigit() else answer for answer in preference_answers
         ]
 
-        weighted_preferences = user_preference.weight_raw_preference_data(*preference_answers_to_potential_int)
+        weighted_preferences = user_preference.weight_raw_preference_data(*casted_preference_answers)
         preference_recommendations = (
             user_preference.get_preference_recommendations(breeds, recommendation_limit, *weighted_preferences))
         preference_recommendations = (
@@ -433,7 +428,7 @@ if __name__ == "__main__":
         demographic_recommendations = curve_data(0.5, demographic_recommendations)
         preference_recommendations = curve_data(0.15, preference_recommendations)
 
-        def add_dog_breed_entry(english_dog_breed: str, german_dog_breed: Optional[str], percent_match: float):
+        def add_dog_breed_entry(english_dog_breed: str, german_dog_breed: Optional[str], percent_match: float) -> None:
             """Adds a dog breed entry to our TKinter window with the top districts and dog info buttons.
             """
             score_percent = int(round(percent_match * 10000) / 100)
@@ -447,7 +442,7 @@ if __name__ == "__main__":
                                 lambda: create_breed_info_popup(english_dog_breed),
                                 font_size=11)
 
-        def add_large_label(message: str):
+        def add_large_label(message: str) -> None:
             """Adds a large padded text label to the tkinter window with given message
             """
             label = tk.Label(app, text=message, font=("Arial", 14))
@@ -460,6 +455,5 @@ if __name__ == "__main__":
         for rec in preference_recommendations:
             add_dog_breed_entry(rec[0], None, rec[1])
 
-
-    app = Questionnaire(questions, process_answers)
+    app = Questionnaire(all_questions, process_answers)
     app.start()

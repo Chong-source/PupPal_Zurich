@@ -39,7 +39,7 @@ if __name__ == '__main__':
     data_loader.apply_district_distances(district_data_dict)
     district_data = set(district_data_dict.keys())
     graph, district_graph_unused = data_loader.load_dog_data('data/zurich_dog_data_2017.csv', district_data)
-    district_lookup = {district.district_id: district for district in district_data}
+    district_lookup = {target.district_id: target for target in district_data}
 
     age = int(input('User age: '))
     gender = input('User gender (f/m/o): ').upper()

@@ -18,7 +18,7 @@ class User:
     gender: str
     district: District
 
-    def __init__(self, user_id: int, age: int, gender: str, district: District):
+    def __init__(self, user_id: int, age: int, gender: str, district: District) -> None:
         """Create a user with a given user_id, age, gender, and district.
 
         Preconditions:
@@ -39,7 +39,7 @@ class User:
         age_diff = abs(other.age - self.age)
         age_score = (-0.0001 * (age_diff ** 2)) + 1  # Plot -0.0001x^2+1 in desmos
         assert 0.0 <= age_score <= 1.0
-        gender_score = 1.0 if other.gender == self.gender or self.gender == 'o' else 0.5
+        gender_score = 1.0 if self.gender in [other.gender, 'o'] else 0.5
         assert 0.0 <= gender_score <= 1.0
         district_score = self.district.get_distance(other.district)
         assert 0.0 <= district_score <= 1.0

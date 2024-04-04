@@ -3,10 +3,10 @@ Creates CSV data on translation of dog breed names from German to English, and
 finds links to images of different dog breeds for displaying to the user.
 """
 import csv
-from googletrans import Translator
-
-import requests
 import json
+import requests
+
+from googletrans import Translator
 
 
 def dog_breed_names_csv_writer(dog_data_file: str, new_file_path: str) -> None:
@@ -68,8 +68,8 @@ def create_dog_image_csv(dog_names_file: str, new_file_path: str, api: str, cse:
         count = 2
         for breed in dog_names:
             url = (f"https://www.googleapis.com/customsearch/v1?"
-                   f"key={api_key}&"
-                   f"cx={cse_id}&"
+                   f"key={api}&"
+                   f"cx={cse}&"
                    f"searchType=image&"
                    f"q={breed}")
             response = requests.get(url)
@@ -91,17 +91,17 @@ def data_cleaning(file1: str, file2: str, unduplicated: str) -> None:
     new file without the duplicates.
     """
     dog_breeds = set()
-    with open(file1) as file1:
-        reader = csv.reader(file1)
+    with open(file1) as file1_content:
+        reader = csv.reader(file1_content)
         for row in reader:
             dog_breeds.add(row[0])
 
-    with open(unduplicated, 'w') as unduplicated:
-        writer = csv.writer(unduplicated)
-        with open(file2) as file2:
-            reader = csv.reader(file2)
+    with open(unduplicated, 'w') as unduplicated_content:
+        writer = csv.writer(unduplicated_content)
+        with open(file2) as file2_content:
+            reader = csv.reader(file2_content)
             for row in reader:
-                if not (row[0] in dog_breeds):
+                if row[0] not in dog_breeds:
                     print(row[0])
                     writer.writerow(row)
 
