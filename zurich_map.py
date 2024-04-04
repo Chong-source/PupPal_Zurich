@@ -1,7 +1,7 @@
-"""A map of Zürich built using tkinter python library
-Followed tutorial from: https://www.youtube.com/watch?v=qDO5ndZuibk
-Tkinter documentation: https://github.com/TomSchimansky/TkinterMapView?tab=readme-ov-file#create-position-markers
-
+"""This file does a few things:
+- Utility methods for using TkinterMapView to display a map of Zurich with various pins
+- CSV data generation of district latitude and longitude using the Google Geocode API
+- Logic for getting the top districts for a given dog breed by proportion
 """
 import csv
 import os
@@ -90,7 +90,7 @@ def get_top_districts(dog_breed: str, districts: set[District], district_graph: 
     return [district for district in district_ratios_sorted]
 
 
-if __name__ == '__main__no':
+if __name__ == '__main__':
     # Writing CSV file: Only needed once to create the csv file
     #   API_key = input("Input API key: ")
     #   district_data_path = input('Path to district data file: ')

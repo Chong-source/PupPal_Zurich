@@ -1,4 +1,6 @@
 """Class that is used to compare how similar one user is to another user.
+
+Does not load data, primarily used for calculating user similarity though.
 """
 from __future__ import annotations
 from districts import District

@@ -1,11 +1,12 @@
-"""A file that generates the data using Google's Custom Search API;
-Followed tutorial from: https://developers.google.com/custom-search/docs/tutorial/introduction"""
+"""A file that generates the data using Google's Custom Search API and Google Translate.
+Creates CSV data on translation of dog breed names from German to English, and
+finds links to images of different dog breeds for displaying to the user.
+"""
 import csv
 from googletrans import Translator
 
 import requests
 import json
-import pandas
 
 
 def dog_breed_names_csv_writer(dog_data_file: str, new_file_path: str) -> None:
