@@ -8,3 +8,5 @@ customtkinter~=5.2.2
 tkintermapview~=1.29
 # Used for displaying images
 pillow~=10.2.0
+# Used for testing
+python-ta~=2.7.0
