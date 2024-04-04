@@ -90,7 +90,7 @@ def get_top_districts(dog_breed: str, districts: set[District], district_graph: 
     return [district for district in district_ratios_sorted]
 
 
-if __name__ == '__main__no':
+if __name__ == '__main__':
     # Writing CSV file: Only needed once to create the csv file
     #   API_key = input("Input API key: ")
     #   district_data_path = input('Path to district data file: ')
