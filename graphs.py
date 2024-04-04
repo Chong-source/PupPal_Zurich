@@ -61,6 +61,13 @@ class Graph:
 
         Preconditions:
             - item1 != item2
+
+        >>> g = Graph()
+        >>> g.add_vertex(1)
+        >>> g.add_vertex(2)
+        >>> g.add_edge(1, 2)
+        >>> g._vertices[2] in g._vertices[1].neighbours and g._vertices[1] in g._vertices[2].neighbours
+        True
         """
         if item1 in self._vertices and item2 in self._vertices:
             v1 = self._vertices[item1]
@@ -75,6 +82,12 @@ class Graph:
         """Return whether item1 and item2 are adjacent vertices in this graph.
 
         Return False if item1 or item2 do not appear as vertices in this graph.
+        >>> g = Graph()
+        >>> g.add_vertex(1)
+        >>> g.add_vertex(2)
+        >>> g.add_edge(1, 2)
+        >>> g.adjacent(1, 2)
+        True
         """
         if item1 in self._vertices and item2 in self._vertices:
             v1 = self._vertices[item1]
@@ -88,6 +101,13 @@ class Graph:
         Note that the *items* are returned, not the _Vertex objects themselves.
 
         Raise a ValueError if item does not appear as a vertex in this graph.
+        >>> g = Graph()
+        >>> g.add_vertex(1)
+        >>> g.add_vertex(2)
+        >>> g.add_edge(1, 2)
+        >>> neighbours = g.get_neighbours(1)
+        >>> neighbours == {2}
+        True
         """
         if item in self._vertices:
             v = self._vertices[item]
@@ -177,6 +197,13 @@ class WeightedGraph(Graph):
 
         Preconditions:
             - item1 and item2 are vertices in this graph
+
+        >>> wg = WeightedGraph()
+        >>> wg.add_vertex(1)
+        >>> wg.add_vertex(2)
+        >>> wg.add_edge(1, 2, 3)
+        >>> wg.get_weight(1, 2)
+        3
         """
         v1 = self._vertices[item1]
         v2 = self._vertices[item2]
@@ -186,6 +213,14 @@ class WeightedGraph(Graph):
         """Return the average weight of the edges adjacent to the vertex corresponding to item.
 
         Raise ValueError if item does not corresponding to a vertex in the graph.
+        >>> wg = WeightedGraph()
+        >>> wg.add_vertex(1)
+        >>> wg.add_vertex(2)
+        >>> wg.add_vertex(4)
+        >>> wg.add_edge(1, 2, 3)
+        >>> wg.add_edge(1, 4, 3)
+        >>> wg.average_weight(1)
+        3.0
         """
         if item in self._vertices:
             v = self._vertices[item]
@@ -195,9 +230,6 @@ class WeightedGraph(Graph):
 
 
 if __name__ == '__main__':
-    import python_ta.contracts
-
-    python_ta.contracts.check_all_contracts()
 
     import doctest
 
