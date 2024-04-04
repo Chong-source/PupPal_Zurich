@@ -1,4 +1,6 @@
-"""File for processing user demographic information.
+"""File for processing user demographic information and generating recommendations.
+
+Does not load data from files itself, just contains logic for calculating recommendations.
 """
 import data_loader
 from graphs import Graph

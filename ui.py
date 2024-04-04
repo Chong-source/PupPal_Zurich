@@ -4,6 +4,9 @@ This is primarily the Questionnaire that sequentially asks users questions for u
 to recommend dog breeds for them.
 
 Utilizes TKinter for UI elements, and OOP for questions and such.
+
+Contains a lot more logic for displaying popups, post-processing data,
+loading images, etc.
 """
 import io
 import math
@@ -293,7 +296,7 @@ if __name__ == "__main__":
 
 
     def add_button_to_frame(parent: tk.Frame, column: int, text: str, command: Callable[[], None], font_size: int = 14):
-        """Add a button to aTK frame in the given column with the given function callable, text label and font size
+        """Add a button to a TK frame in the given column with the given function callable, text label and font size
         """
         button = tk.Button(parent, text=text, command=command, font=("Arial", font_size))
         button.grid(row=0, column=column)

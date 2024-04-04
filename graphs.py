@@ -1,4 +1,7 @@
 """Abstract graph implementation code used in our Project 2 code.
+
+Does not contain specific information pertaining to the ideas of our project, just
+a general implementation of graphs similar to execersizes 3 and 4.
 """
 from __future__ import annotations
 from typing import Any

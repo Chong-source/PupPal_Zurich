@@ -1,7 +1,7 @@
-"""A map of Zürich built using tkinter python library
-Followed tutorial from: https://www.youtube.com/watch?v=qDO5ndZuibk
-Tkinter documentation: https://github.com/TomSchimansky/TkinterMapView?tab=readme-ov-file#create-position-markers
-
+"""This file does a few things:
+- Utility methods for using TkinterMapView to display a map of Zurich with various pins
+- CSV data generation of district latitude and longitude using the Google Geocode API
+- Logic for getting the top districts for a given dog breed by proportion
 """
 import csv
 import os

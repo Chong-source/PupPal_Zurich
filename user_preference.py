@@ -1,4 +1,6 @@
-"""A decision matrix that takes user's preferences based on criterias
+"""File for processing user preference information and generating recommendations.
+
+A decision matrix that takes user's preferences based on criterias
 decided by the American Kennel Club.
 Did data cleaning to delete the irrelevant columns/criterias from CSV file.
 """

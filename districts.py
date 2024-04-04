@@ -1,6 +1,6 @@
-"""Class that processes information about various districts.
+"""File that has the District dataclass that holds information about various districts.
 
-Primarily used to hold data about districts (such as their IDs and their names)
+Does not handle processing of data, just holds it.
 """
 from __future__ import annotations
 
