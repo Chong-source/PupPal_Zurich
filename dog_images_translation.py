@@ -105,9 +105,9 @@ def data_cleaning(file1: str, file2: str, unduplicated: str) -> None:
                     writer.writerow(row)
 
 
-# if __name__ == '__main__':
-    # api_key = input("API_key: ")
-    # cse_id = input("CSE_id: ")
+if __name__ == '__main__':
+    api_key = input("API_key: ")
+    cse_id = input("CSE_id: ")
     # create_dog_image_csv('data/translated_dog_breed.csv',
     #                      'data/dog_images4.csv',
     #                      api_key,
