@@ -22,7 +22,7 @@ class District:
     district_name: str
     __district_distances: Optional[dict[District, float]] = None
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(str(self.district_id))
 
     def get_distance(self, other: District) -> float:
@@ -38,7 +38,7 @@ class District:
             raise RuntimeError
         return self.__district_distances[other]
 
-    def set_distance(self, other: District, distance: float):
+    def set_distance(self, other: District, distance: float) -> None:
         """Caches the distance between this district and another district for use later on.
         """
         if not self.__district_distances:

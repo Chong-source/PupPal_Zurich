@@ -45,9 +45,9 @@ def load_dog_data(dog_data_file: str, districts: set[District]) -> tuple[Graph, 
     """
     dog_graph = Graph()
     district_graph = WeightedGraph()
-    district_mapping = {district.district_id: district for district in districts}
+    district_mapping = {target.district_id: target for target in districts}
     users = {}
-    with (open(dog_data_file, encoding='utf-8') as dog_data_content):
+    with open(dog_data_file, encoding='utf-8') as dog_data_content:
         reader = csv.reader(dog_data_content)
         next(reader, None)  # Skip the first line header
         for row in reader:
@@ -108,7 +108,7 @@ def get_raw_district_distances(
     Raw data in this context means it has not been normalized (and remains in kilometers,
     not bounded by 0.0 and 1.0)
     """
-    district_lookup = {district.district_id: district for district in districts}
+    district_lookup = {target.district_id: target for target in districts}
     raw_district_distances = {}
     with open(district_distance_file) as district_distance_content:
         reader = csv.reader(district_distance_content)
@@ -184,7 +184,7 @@ def dog_breed_data_loader(file: str) -> list[UserPreferenceDogBreed]:
 def load_district_lat_lng(file: str, districts: set[District]) -> dict[District, tuple[float, float]]:
     """Loads the district latitudes and longitudes from a mapping file.
     """
-    district_lookup = {district.district_name: district for district in districts}
+    district_lookup = {target.district_name: target for target in districts}
     with open(file, encoding='utf-8') as district_file:
         district_file.readline()
         district_rows = csv.reader(district_file)

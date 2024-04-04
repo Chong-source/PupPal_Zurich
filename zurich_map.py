@@ -14,17 +14,6 @@ from graphs import WeightedGraph
 from districts import District
 
 
-def __plot_locations(locations: list[tuple[float, float]]) -> None:
-    """Plot each location in locations in the interactive map of Zürich
-
-    Representation Invariants:
-    - For each tuple t in the list, t[0] is the latitude of the location as a float
-    - For each tuple t in the list, t[1] is the longtitude of the location as a float
-    """
-    for location in locations:
-        map_widget.set_marker(location[0], location[1])
-
-
 def write_district_locations(api_key: str, districts: set[District], csv_path: str) -> None:
     """A function that takes in a new file name, an API_key, and a set of districts to
     create a csv file that contains the latitude and longitude of each district in the following format:
@@ -87,7 +76,7 @@ def get_top_districts(dog_breed: str, districts: set[District], district_graph: 
         size, breed_count = district_size[district], district_breed_count[district]
         district_ratios[district] = breed_count / size
     district_ratios_sorted = sorted(district_ratios, key=lambda target: district_ratios[target], reverse=True)
-    return [district for district in district_ratios_sorted]
+    return list(district_ratios_sorted)
 
 
 if __name__ == '__main__':

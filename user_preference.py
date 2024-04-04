@@ -31,17 +31,17 @@ def get_preference_recommendations(dog_breeds: list[UserPreferenceDogBreed],
     breed_scores = []
     for dog_breed in dog_breeds:
         breed_score = waffectionate_w_family * dog_breed.affectionate_w_family + \
-                      wgood_w_young_children * dog_breed.good_w_young_children + \
-                      wgood_w_other_dog * dog_breed.good_w_other_dog + \
-                      wshedding_level * dog_breed.shedding_level + \
-                      wopenness_to_strangers * dog_breed.openness_to_strangers + \
-                      wplayfulness * dog_breed.playfulness + \
-                      wprotective_nature * dog_breed.protective_nature + \
-                      wadaptability * dog_breed.adaptability + \
-                      wtrainability * dog_breed.trainability + \
-                      wenergy * dog_breed.energy + \
-                      wbarking * dog_breed.barking + \
-                      wstimulation_needs * dog_breed.stimulation_needs
+            wgood_w_young_children * dog_breed.good_w_young_children + \
+            wgood_w_other_dog * dog_breed.good_w_other_dog + \
+            wshedding_level * dog_breed.shedding_level + \
+            wopenness_to_strangers * dog_breed.openness_to_strangers + \
+            wplayfulness * dog_breed.playfulness + \
+            wprotective_nature * dog_breed.protective_nature + \
+            wadaptability * dog_breed.adaptability + \
+            wtrainability * dog_breed.trainability + \
+            wenergy * dog_breed.energy + \
+            wbarking * dog_breed.barking + \
+            wstimulation_needs * dog_breed.stimulation_needs
         breed_scores.append((dog_breed.breed_name, breed_score))
         breed_scores.sort(key=lambda key: key[1], reverse=True)
     return breed_scores[:limit]
