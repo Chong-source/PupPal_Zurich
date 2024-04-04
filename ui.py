@@ -14,6 +14,7 @@ import tkinter as tk
 import urllib.request
 from typing import Callable, Optional
 from urllib.error import HTTPError
+import ssl
 
 from PIL import Image, ImageTk
 from PIL.ImageTk import PhotoImage
@@ -320,7 +321,10 @@ if __name__ == "__main__":
         """WARNING: BLOCKING METHOD
         Retrieves an image from URL then loads it into an ImageTk
         """
-        with urllib.request.urlopen(url) as get:
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        with urllib.request.urlopen(url, context=ctx) as get:
             raw_data = get.read()
         image_raw = Image.open(io.BytesIO(raw_data))
         y_ratio = target_image_y_pixel / image_raw.size[1]
