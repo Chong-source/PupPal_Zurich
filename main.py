@@ -358,42 +358,22 @@ if __name__ == "__main__":
                      font=('Arial', 14)
                      ).pack(pady=(5, 10))
         else:
-            (tk.Label(popup,
-                      text=f'Affectionate with Family: {breed.affectionate_w_family}', font=('Arial', 11))
-             .pack(pady=(1, 1)))
-            (tk.Label(popup,
-                      text=f'Good with Young Children: {breed.good_w_young_children}', font=('Arial', 11))
-             .pack(pady=(1, 1)))
-            (tk.Label(popup,
-                      text=f'Good with Other Dogs: {breed.good_w_other_dog}', font=('Arial', 11))
-             .pack(pady=(1, 1)))
-            (tk.Label(popup,
-                      text=f'Shedding Level: {breed.shedding_level}', font=('Arial', 11))
-             .pack(pady=(1, 1)))
-            (tk.Label(popup,
-                      text=f'Openness to Strangers: {breed.openness_to_strangers}', font=('Arial', 11))
-             .pack(pady=(1, 1)))
-            (tk.Label(popup,
-                      text=f'Playfullness: {breed.playfulness}', font=('Arial', 11))
-             .pack(pady=(1, 1)))
-            (tk.Label(popup,
-                      text=f'Protective Nature: {breed.protective_nature}', font=('Arial', 11))
-             .pack(pady=(1, 1)))
-            (tk.Label(popup,
-                      text=f'Adaptability: {breed.adaptability}', font=('Arial', 11))
-             .pack(pady=(1, 1)))
-            (tk.Label(popup,
-                      text=f'Trainability: {breed.trainability}', font=('Arial', 11))
-             .pack(pady=(1, 1)))
-            (tk.Label(popup,
-                      text=f'Energy: {breed.energy}', font=('Arial', 11))
-             .pack(pady=(1, 1)))
-            (tk.Label(popup,
-                      text=f'Barking: {breed.barking}', font=('Arial', 11))
-             .pack(pady=(1, 1)))
-            (tk.Label(popup,
-                      text=f'Stimulation Needs: {breed.stimulation_needs}', font=('Arial', 11))
-             .pack(pady=(1, 1)))
+            def trait_label(text: str) -> None:
+                """Adds a dog trait label to the popup with the given text
+                """
+                tk.Label(popup, text=text, font=('Arial', 11)).pack(pady=(1, 1))
+            trait_label(f'Affectionate with Family: {breed.affectionate_w_family}')
+            trait_label(f'Good with Young Children: {breed.good_w_young_children}')
+            trait_label(f'Good with Other Dogs: {breed.good_w_other_dog}')
+            trait_label(f'Shedding Level: {breed.shedding_level}')
+            trait_label(f'Openness to Strangers: {breed.openness_to_strangers}')
+            trait_label(f'Playfullness: {breed.playfulness}')
+            trait_label(f'Protective Nature: {breed.protective_nature}')
+            trait_label(f'Adaptability: {breed.adaptability}')
+            trait_label(f'Trainability: {breed.trainability}')
+            trait_label(f'Energy: {breed.energy}')
+            trait_label(f'Barking: {breed.barking}')
+            trait_label(f'Stimulation Needs: {breed.stimulation_needs}')
         popup.mainloop()
 
     def process_answers(answers: list[str]) -> None:
