@@ -1,17 +1,22 @@
 # ZurichWoof: A Dog Recommendation Application
 ## Table of Contents
 1. [Introduction](#What-the-project-does)
-2. [Technologies](#technologies)
-3. [Installation](#installation)
-4. [Collaboration](#collaboration)
-5. [FAQs](#faqs)
+2. [Instructions](#Instructions-on-running-the-program)
+3. [Motivation for Creating ZurichWoof](#Motivation)
+
 ## What the project does
 Zürich Woof is an application that recommends the dog breeds to the owners based on the user's preferences and demographics. We have also created an user interface that asks a series of questions to the user and shows the top 5 districts of the population of that dog breed in Zürich and also the features of the dog according to the ratings given by the American Kennel Club. This project is mainly written in python, and we also generated our own data such as in district_closeness.py and dog_images_translations.py. We learned a lot about data cleaning, database merging, and User Interface in this project.
 
 ## Instructions on running the program
+* Please ensure internet connection is good while running this program because when displaying image of the dogs, the program fetches images from the internet using links to the image address.
+* Please be patient with the loading time of the map and the dog breed information images, as they can be a bit slow sometimes.
+1. Download all of the files from the repository onto the computer as a zip file, open the zip file in a new folder
+2. Install all requirements: ```pip install -r requirements.txt```
+3. The zip file of the data sets is also uploaded to this repo, and its name is ```data.zip```. Download this file as a zip. Unzip this file, and please ensure that the name of the folder is just 'data' because we're calling using that specific file path.
+4. Run the main.py file: ```python3 main.py```
+5. You should see the user interface
 
-
-## Inspiration
+## Motivation
 ### Problem Description 
 In today's digital age, personalized recommendations have become crucial for enhancing user experience and engagement. 
 Our program provides recommendations for prospective dog owners to find the right type of dog for them based off of their demographics and preferences. 
