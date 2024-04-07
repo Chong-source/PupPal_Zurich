@@ -1,5 +1,5 @@
 # ZurichWoof: A Dog Recommendation Application
-Note: For more detailed documentation, please read [project_report.pdf](#project_report.pdf)
+Note: For more detailed documentation, please read [project_report.pdf](project_report.pdf)
 ## Table of Contents
 1. [Introduction](#What-the-project-does)
 2. [Instructions](#Instructions-on-running-the-program)
