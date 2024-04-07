@@ -1,6 +1,6 @@
 # ZurichWoof: A Dog Recommendation Application
 ## Table of Contents
-1. [What the project does](## What the project does)
+1. [Introduction](#What-the-project-does)
 2. [Technologies](#technologies)
 3. [Installation](#installation)
 4. [Collaboration](#collaboration)
