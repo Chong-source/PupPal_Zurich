@@ -1,4 +1,6 @@
-"""File that has the District dataclass that holds information about various districts.
+"""
+© Copyright 2024 Kai Lo and Chong Wan
+File that has the District dataclass that holds information about various districts.
 
 Does not handle processing of data, just holds it.
 """

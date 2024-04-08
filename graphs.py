@@ -1,4 +1,6 @@
-"""Abstract graph implementation code used in our Project 2 code.
+"""
+© Copyright 2024 Kai Lo and Chong Wan
+Abstract graph implementation code used in our Project 2 code.
 
 Does not contain specific information pertaining to the ideas of our project, just
 a general implementation of graphs similar to execersizes 3 and 4.

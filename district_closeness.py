@@ -1,4 +1,6 @@
-"""Dataset generation file that uses the Google Maps API to store the distances
+"""
+© Copyright 2024 Kai Lo and Chong Wan
+Dataset generation file that uses the Google Maps API to store the distances
 between districts in a CSV file.
 
 Data was manually inspected after generation since sometimes the API fails.

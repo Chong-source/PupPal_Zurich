@@ -1,4 +1,6 @@
-"""The class containing UI components for our project.
+"""
+© Copyright 2024 Kai Lo and Chong Wan
+The class containing UI components for our project.
 
 This is primarily the Questionnaire that sequentially asks users questions for us
 to recommend dog breeds for them.

@@ -1,4 +1,6 @@
-"""A file that generates the data using Google's Custom Search API and Google Translate.
+"""
+© Copyright 2024 Kai Lo and Chong Wan
+A file that generates the data using Google's Custom Search API and Google Translate.
 Creates CSV data on translation of dog breed names from German to English, and
 finds links to images of different dog breeds for displaying to the user.
 """
@@ -109,10 +111,3 @@ def data_cleaning(file1: str, file2: str, unduplicated: str) -> None:
 if __name__ == '__main__':
     api_key = input("API_key: ")
     cse_id = input("CSE_id: ")
-    # create_dog_image_csv('data/translated_dog_breed.csv',
-    #                      'data/dog_images4.csv',
-    #                      api_key,
-    #                      cse_id)
-
-    # data_cleaning('data/dog_images3.csv', 'data/dog_images4.csv',
-    #               'data/no_duplicates.csv')

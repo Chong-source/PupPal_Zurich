@@ -1,4 +1,6 @@
-"""This file does a few things:
+"""
+© Copyright 2024 Kai Lo and Chong Wan
+This file does a few things:
 - Utility methods for using TkinterMapView to display a map of Zurich with various pins
 - CSV data generation of district latitude and longitude using the Google Geocode API
 - Logic for getting the top districts for a given dog breed by proportion

@@ -1,4 +1,6 @@
-"""File for processing user preference information and generating recommendations.
+"""
+© Copyright 2024 Kai Lo and Chong Wan
+File for processing user preference information and generating recommendations.
 
 A decision matrix that takes user's preferences based on criterias
 decided by the American Kennel Club.

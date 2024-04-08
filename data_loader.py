@@ -1,4 +1,6 @@
-"""Loads data from all 7 of our different datasets for this project.
+"""
+© Copyright 2024 Kai Lo and Chong Wan
+Loads data from all 7 of our different datasets for this project.
 
 Each source pertains to a different part of the recommendation process.
 
